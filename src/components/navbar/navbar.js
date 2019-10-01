@@ -51,7 +51,7 @@ class NavBar extends React.Component {
           <Typography 
             variant="h6" 
             className={styles.title} 
-            onClick={this.props.isLogged === true ? () => this.goTo('/home') : () => this.goTo('/login')}
+            onClick={this.props.isLog === true ? () => this.goTo('/home') : () => this.goTo('/login')}
           >
             Social Door
           </Typography>

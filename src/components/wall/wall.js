@@ -34,6 +34,7 @@ class Wall extends React.Component {
         this.setState({
           currentUser: user
         })
+        this.props.isLogged(true)
       }
     });
   }
