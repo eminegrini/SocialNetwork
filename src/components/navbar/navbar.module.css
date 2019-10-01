@@ -1,0 +1,33 @@
+.root {
+  display: flex;
+  flex-grow: 1;
+  margin-bottom: 5%; 
+  position: relative;
+}
+
+.menuButton {
+  margin-right: 2px;
+}
+
+.account {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.account > div {
+  margin-left: 8px;
+  width: 30px;
+  height: 30px;
+}
+
+.title {
+  display: flex;
+  flex-grow: 1;
+}
+
+@media (max-width: 500px) {
+  .root {
+    margin-bottom: 15%; 
+  }
+}

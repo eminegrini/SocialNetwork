@@ -1,0 +1,16 @@
+.wallContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.wallContainer > div:first-child {
+  width: 100px;
+  height: 100px;
+}
+
+.wallContainer > div:nth-child(2) {
+  max-width: 645px;
+  min-width: 200px;
+}
