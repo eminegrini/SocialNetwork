@@ -24,6 +24,7 @@
 .title {
   display: flex;
   flex-grow: 1;
+  color: white
 }
 
 @media (max-width: 500px) {

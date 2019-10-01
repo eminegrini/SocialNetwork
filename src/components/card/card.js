@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './card.module.css'
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -11,36 +11,56 @@ import Typography from '@material-ui/core/Typography';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import firebase from 'firebase/app'
+import map from 'lodash/map'
+import 'firebase/firestore'
+import 'firebase/auth'
 
 
-const ViewCard = ()  => {
+const ViewCard = (props)  => {
+
+  const [posts, setPost] = useState([])
+
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        return firebase.database().ref('/Users/' + user.uid + '/publications').on('value', (snapshot) => {
+          setPost(snapshot.val())
+        });
+      }
+    });
+  },[])
 
   return (
     <div className={styles.cardContainer}> 
-      <Card className={styles.card}>
+    {
+      posts && map(posts, post => (
+        <Card className={styles.card} key={post.picture} >
         <CardHeader
           avatar={
-            <Avatar aria-label="recipe" className={styles.avatar}>
-              R
-            </Avatar>
+            <Avatar 
+              aria-label="recipe" 
+              className={styles.avatar}
+              alt="User Profile" 
+              src={props.user.photo} 
+            />
           }
           action={
             <IconButton aria-label="settings">
               <MoreVertIcon />
             </IconButton>
           }
-          title="Shrimp and Chorizo Paella"
-          subheader="September 14, 2016"
+          title={props.user.name}
+          subheader={post.date}
         />
         <CardMedia
           className={styles.media}
-          image="https://static8.depositphotos.com/1016676/815/i/450/depositphotos_8156139-stock-photo-fruits.jpg"
+          image={post.picture || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_UE5gown5KNIg10tZWIX0Y_Y1gsWtvu95mxFWpOwLigekC5j8'}
           title="Fruit"
         />
-        <CardContent>
+        <CardContent className={styles.desc}>
           <Typography variant="body2" color="textSecondary" component="p">
-            This impressive paella is a perfect party dish and a fun meal to cook together with your
-            guests. Add 1 cup of frozen peas along with the mussels, if you like.
+            {post.description}
           </Typography>
         </CardContent>
         <CardActions disableSpacing>
@@ -52,6 +72,9 @@ const ViewCard = ()  => {
           </IconButton>
         </CardActions>
       </Card>
+      )
+      ).reverse()
+    }
     </div>
   );
 }

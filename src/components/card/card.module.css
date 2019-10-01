@@ -1,6 +1,6 @@
 .card {
   max-width: 645px;
-  min-width: 200px;
+  min-width: 645px;
   margin-top: 20px;
 }
 
@@ -8,6 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
 }
 
 .media {
@@ -18,3 +19,4 @@
 .expand {
   margin-left: auto;
 }
+
