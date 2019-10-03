@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styles from './card.module.css'
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -17,66 +17,94 @@ import 'firebase/firestore'
 import 'firebase/auth'
 
 
-const ViewCard = (props)  => {
+class ViewCard extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      posts: [],
+      user: {}
+    };
+  }
 
-  const [posts, setPost] = useState([])
-
-  useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        return firebase.database().ref('/Users/' + user.uid + '/publications').on('value', (snapshot) => {
-          setPost(snapshot.val())
-        });
-      }
-    });
-  },[])
-
-  return (
-    <div className={styles.cardContainer}> 
-    {
-      posts && map(posts, post => (
-        <Card className={styles.card} key={post.picture} >
-        <CardHeader
-          avatar={
-            <Avatar 
-              aria-label="recipe" 
-              className={styles.avatar}
-              alt="User Profile" 
-              src={props.user.photo} 
-            />
-          }
-          action={
-            <IconButton aria-label="settings">
-              <MoreVertIcon />
-            </IconButton>
-          }
-          title={props.user.name}
-          subheader={post.date}
-        />
-        <CardMedia
-          className={styles.media}
-          image={post.picture || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_UE5gown5KNIg10tZWIX0Y_Y1gsWtvu95mxFWpOwLigekC5j8'}
-          title="Fruit"
-        />
-        <CardContent className={styles.desc}>
-          <Typography variant="body2" color="textSecondary" component="p">
-            {post.description}
-          </Typography>
-        </CardContent>
-        <CardActions disableSpacing>
-          <IconButton aria-label="add to favorites">
-            <FavoriteIcon />
-          </IconButton>
-          <IconButton aria-label="share">
-            <ShareIcon />
-          </IconButton>
-        </CardActions>
-      </Card>
-      )
-      ).reverse()
+  componentDidMount() {
+    return (
+      firebase.database().ref('/Users/' + this.props.id + '/profile/').on('value', (snapshot) => {
+        this.setState({
+          user: snapshot.val()
+        })
+      }),
+      firebase.database().ref('/Users/' + this.props.id + '/publications').on('value', (snapshot) => {
+        this.setState({
+          posts: snapshot.val()
+        })
+      })
+    )
+  }
+ //refactor yo useefect and usestate :D
+  UNSAFE_componentWillReceiveProps(nextProps){
+    if(this.props.location.state.params !== nextProps.location.state.params) {
+      firebase.database().ref('/Users/' + nextProps.location.state.params + '/publications').on('value', (snapshot) => {
+        this.setState({
+          posts: snapshot.val()
+        })
+      })
+      firebase.database().ref('/Users/' + nextProps.location.state.params + '/profile/').on('value', (snapshot) => {
+        this.setState({
+          user: snapshot.val()
+        })
+      })
     }
-    </div>
-  );
+  }
+
+  render() {
+    return (
+      <div className={styles.cardContainer}> 
+      {
+        this.state.posts && map(this.state.posts, post => (
+          <Card className={styles.card} key={post.picture} >
+          <CardHeader
+            avatar={
+              <Avatar 
+                aria-label="recipe" 
+                className={styles.avatar}
+                alt="User Profile" 
+                src={this.state.user.picture} 
+              />
+            }
+            action={
+              <IconButton aria-label="settings">
+                <MoreVertIcon />
+              </IconButton>
+            }
+            title={this.props.user.name}
+            subheader={post.date}
+          />
+          <CardMedia
+            className={styles.media}
+            image={post.picture || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_UE5gown5KNIg10tZWIX0Y_Y1gsWtvu95mxFWpOwLigekC5j8'}
+            title="Fruit"
+          />
+          <CardContent className={styles.desc}>
+            <Typography variant="body2" color="textSecondary" component="p">
+              {post.description}
+            </Typography>
+          </CardContent>
+          <CardActions disableSpacing>
+            <IconButton aria-label="add to favorites">
+              <FavoriteIcon />
+            </IconButton>
+            <IconButton aria-label="share">
+              <ShareIcon />
+            </IconButton>
+          </CardActions>
+        </Card>
+        )
+        ).reverse()
+      }
+      </div>
+    );
+  }
+  
 }
 
 export default ViewCard

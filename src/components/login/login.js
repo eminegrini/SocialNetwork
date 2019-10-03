@@ -22,12 +22,13 @@ const Login = (props) => {
         let user = result.user;
         props.loginUser(user)
         props.isLogged(true)
-        if (result.additionalUserInfo.isNewUser === true) {
+        if (result.additionalUserInfo.isNewUser === false) {
           firebase.database().ref('Users/'+ result.user.uid +'/profile').set({
             name: result.additionalUserInfo.profile.given_name, 
             familyName: result.additionalUserInfo.profile.family_name,
             picture: result.additionalUserInfo.profile.picture,
-            email: result.additionalUserInfo.profile.email
+            email: result.additionalUserInfo.profile.email,
+            id: result.user.uid
           })
         }
       })
@@ -49,7 +50,8 @@ const Login = (props) => {
     .then(resp => {
       props.isLogged(true)
       props.loginUser(resp.user)
-      if(resp.additionalUserInfo.isNewUser === true) {
+      console.log()
+      if(resp.additionalUserInfo.isNewUser === false) {
         firebase.database().ref('Users/'+ resp.user.uid +'/profile').set({
           email: resp.user.email
         })

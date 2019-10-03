@@ -13,7 +13,8 @@ export default (state = initialState, action) => {
         user: {
           email: action.payload.email,
           name: action.payload.displayName,
-          photo: action.payload.photoURL
+          photo: action.payload.photoURL,
+          id: action.payload.uid
         }
       }
     }
