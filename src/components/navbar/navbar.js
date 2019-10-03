@@ -17,6 +17,8 @@ import { Mentions, Menu, Dropdown } from 'antd';
 import PeopleIcon from '@material-ui/icons/People';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import PersonAddDisabledIcon from '@material-ui/icons/PersonAddDisabled';
+import HomeIcon from '@material-ui/icons/Home';
+import CheckIcon from '@material-ui/icons/Check';
 
 
 class NavBar extends React.Component {
@@ -28,7 +30,8 @@ class NavBar extends React.Component {
       searchOption: '',
       filteredUser: {},
       AnchorEl: null,
-      openMenu: false
+      openMenu: false,
+      friends: {},
     };
   }
 
@@ -49,8 +52,9 @@ class NavBar extends React.Component {
             if(user.uid === data.profile.id && data.notifications) {
               this.setState({
                 notifications: data.notifications.friends || 0,
+                friends: data.friends
               })
-            } 
+            }
           })
           this.setState({
             filteredUser: profiles,
@@ -66,6 +70,7 @@ class NavBar extends React.Component {
       firebase.database().ref('Users/'+ event.currentTarget.id +'/notifications').child('friends/'+ this.props.user.id).set({
         id:this.props.user.id,
         type: "friends",
+        email: this.props.user.email,
         text: "wants to be your friend",
         from: this.props.user.name,
         picture: this.props.user.photo
@@ -76,8 +81,16 @@ class NavBar extends React.Component {
   }
 
   friendSolicitationAcept = (event) => {
-      firebase.database().ref('Users/'+ this.props.user.id +'/notifications/friends/'+ event.currentTarget.id).remove()
-      console.log(event.currentTarget)
+    firebase.database().ref('Users/'+ event.currentTarget.id).child('friends/'+ this.props.user.id).set({
+      email: this.props.user.email,
+      name: this.props.user.name,
+      id: this.props.user.id,
+      picture: this.props.user.photo
+    })
+    firebase.database().ref('Users/'+ this.props.user.id +'/notifications').child('friends/'+ event.currentTarget.id).set(null)
+      this.setState({
+        notifications: firebase.database().ref('Users/'+ this.props.user.id +'/notifications').child('friends').on('value', snapshot => snapshot.val())
+      })
     event.preventDefault()
     event.stopPropagation()
   }
@@ -122,6 +135,10 @@ class NavBar extends React.Component {
       searchOption: ''
     })
   }
+  home = (option) => {
+    this.props.history.push('/profile/'+ option.id, { params: option.id })
+  }
+
 
   render() {
 
@@ -129,7 +146,6 @@ class NavBar extends React.Component {
       <Menu className={styles.menuNoti}>
         {
           map(this.state.notifications, noti => {
-            console.log(noti)
             return(
             <Menu.Item
               key={noti.id}
@@ -144,7 +160,15 @@ class NavBar extends React.Component {
                 <br/>  
                 {noti.text}           
               </span>
-              <Button color="primary"  variant="contained" onClick={this.friendSolicitationAcept} id={noti.id}>
+              <Button 
+                color="primary"  
+                variant="contained" 
+                onClick={this.friendSolicitationAcept} 
+                id={noti.id}
+                name={noti.from}
+                picture={noti.picture}
+                email={noti.email}
+              >
                 <PersonAddIcon color='inherit' />
               </Button>
               <Button onClick={this.friendSolicitationCancel} color="primary"  variant="contained" id={noti.id}>
@@ -170,6 +194,7 @@ class NavBar extends React.Component {
           >
             Social Door
           </Typography>
+
           {this.props.isLog ?
           <div className={styles.account}>
              <Mentions
@@ -194,17 +219,27 @@ class NavBar extends React.Component {
                     <span>
                       {user.profile.name+ ' ' + user.profile.familyName}
                     </span>
-                    {this.props.user.id !== user.profile.id &&
-                    <Button
-                      id={user.profile.id}
-                      color="primary" 
-                      variant="contained" 
-                      style={{width : '30%' }}
-                      onClick={this.friendSolicitation}
-                    >
+                    {map(this.state.friends, friend => (
+                     friend.id !== user.profile.id ?
+                      <Button
+                        id={user.profile.id}
+                        name={user.profile.name + user.profile.familyName}
+                        email={user.profile.email}
+                        picture={user.profile.picture}
+                        color="primary" 
+                        variant="contained" 
+                        style={{width : '30%' }}
+                        onClick={this.friendSolicitation}
+                      >
                       <GroupAddIcon />
                       Add
-                    </Button>
+                      </Button>
+                      :
+                      <div>
+                        <CheckIcon  color='inherit'/>
+                        <span>Friend</span>
+                      </div>
+                    ))
                     }
                     </Mentions.Option>
                   )
@@ -221,6 +256,16 @@ class NavBar extends React.Component {
                   </Badge>
                 </IconButton>
               </Dropdown>
+              <IconButton 
+                  aria-label="Home"
+                  color="inherit"
+                  onClick={()=> this.home(this.props.user)}
+                >
+                  <Badge>
+                    <HomeIcon color="inherit" />
+                  </Badge>
+                </IconButton>
+
             <span>{this.props.user.name ? this.props.user.name : this.props.user.email}</span>
             {
               this.props.user.photo ?
@@ -258,7 +303,6 @@ class NavBar extends React.Component {
             </Button>
           </div>
           }
-        
         </Toolbar>
       </AppBar>
       <ProfileMenu 

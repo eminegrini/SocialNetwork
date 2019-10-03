@@ -22,7 +22,9 @@ class ViewCard extends React.Component {
     super(props);
     this.state = {
       posts: [],
-      user: {}
+      friend:{},
+      user: {},
+      friendsPosts: {}
     };
   }
 
@@ -36,6 +38,11 @@ class ViewCard extends React.Component {
       firebase.database().ref('/Users/' + this.props.id + '/publications').on('value', (snapshot) => {
         this.setState({
           posts: snapshot.val()
+        })
+      }),
+      firebase.database().ref('/Users/' + this.props.id + '/friends').on('value', (snapshot) => {
+        this.setState({
+          friendsPosts: snapshot.val()
         })
       })
     )
@@ -61,7 +68,7 @@ class ViewCard extends React.Component {
       <div className={styles.cardContainer}> 
       {
         this.state.posts && map(this.state.posts, post => (
-          <Card className={styles.card} key={post.picture} >
+          <Card className={styles.card} key={post.date} >
           <CardHeader
             avatar={
               <Avatar 
@@ -82,7 +89,7 @@ class ViewCard extends React.Component {
           <CardMedia
             className={styles.media}
             image={post.picture || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_UE5gown5KNIg10tZWIX0Y_Y1gsWtvu95mxFWpOwLigekC5j8'}
-            title="Fruit"
+            title={post.picture}
           />
           <CardContent className={styles.desc}>
             <Typography variant="body2" color="textSecondary" component="p">

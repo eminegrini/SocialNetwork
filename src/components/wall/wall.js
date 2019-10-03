@@ -96,7 +96,7 @@ class Wall extends React.Component {
       this.showModal('Publication Shared')
     }
     else {
-      this.showModal('Error NOT Publication Shared')
+      this.showModal('Error NOT Shared Publication')
     }
     if(this.state.uploadValue === 100 || this.state.wall.description !== ''){
       this.setState({
@@ -107,7 +107,7 @@ class Wall extends React.Component {
         picture:''
       })
     } else {
-      this.showModal('Error NOT Publication Shared')
+      this.showModal('Error NOT Shared Publication')
     }
   }
 
